@@ -9,6 +9,9 @@ This project is Elastic Grid Network Concept code which explaining how it works.
 Visual Studio 2017  
 .netframework 4.6.1  
 
+## Elastic Grid Network Concept
+will be update soon
+
 ## Demo
 run `demo.bat` in Bin path  
 wait for some time...  
