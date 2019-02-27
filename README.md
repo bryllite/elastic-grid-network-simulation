@@ -1,1 +1,1 @@
-# elastic-grid-network-simulation
+# Elastic Grid Network Simulation
