@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2003
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BRYLLITE", "BRYLLITE", "{92F6D431-83FD-4348-BDC8-2F875BF5BF84}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "APPS", "APPS", "{B723B08E-027E-4329-B9FE-79A63473CE7F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrylliteLib", "BRYLLITE\BrylliteLib\BrylliteLib.csproj", "{2F9F435C-872B-437F-AEFC-1981963CEEA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackerServiceApp", "APPS\TrackerServiceApp\TrackerServiceApp.csproj", "{FF26E66F-FF9F-40FC-AD90-16A913D9E22A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NodeServerApp", "APPS\NodeServerApp\NodeServerApp.csproj", "{27DB6800-4EDC-414A-8CFE-8E0B28BCE950}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F9F435C-872B-437F-AEFC-1981963CEEA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F9F435C-872B-437F-AEFC-1981963CEEA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F9F435C-872B-437F-AEFC-1981963CEEA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F9F435C-872B-437F-AEFC-1981963CEEA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF26E66F-FF9F-40FC-AD90-16A913D9E22A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF26E66F-FF9F-40FC-AD90-16A913D9E22A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF26E66F-FF9F-40FC-AD90-16A913D9E22A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF26E66F-FF9F-40FC-AD90-16A913D9E22A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27DB6800-4EDC-414A-8CFE-8E0B28BCE950}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27DB6800-4EDC-414A-8CFE-8E0B28BCE950}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27DB6800-4EDC-414A-8CFE-8E0B28BCE950}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27DB6800-4EDC-414A-8CFE-8E0B28BCE950}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2F9F435C-872B-437F-AEFC-1981963CEEA6} = {92F6D431-83FD-4348-BDC8-2F875BF5BF84}
+		{FF26E66F-FF9F-40FC-AD90-16A913D9E22A} = {B723B08E-027E-4329-B9FE-79A63473CE7F}
+		{27DB6800-4EDC-414A-8CFE-8E0B28BCE950} = {B723B08E-027E-4329-B9FE-79A63473CE7F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {939128A4-682C-4479-A2AA-193FD552AAA1}
+	EndGlobalSection
+EndGlobal
