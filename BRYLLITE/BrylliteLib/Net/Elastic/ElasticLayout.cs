@@ -73,7 +73,7 @@ namespace BrylliteLib.Net.Elastic
             return true;
         }
 
-        public int GridCount
+        public int Count
         {
             get
             {
@@ -103,25 +103,19 @@ namespace BrylliteLib.Net.Elastic
             return !(left == right);
         }
 
-        // nPeers 갯수에 따라 레이아웃을 결정한다.
-        public static ElasticLayout ComputeLayout(int nPeers)
+        // define Grid Layout based on nPeers
+        public static ElasticLayout DefineLayoutFor(int nPeers)
         {
             for (byte z = 1; z <= MAX_N; z++)
-            {
                 for (byte y = 1; y <= MAX_N; y++)
-                {
                     for (byte x = 1; x <= MAX_N; x++)
-                    {
-                        if (x * y * z * MAX_N >= nPeers)
+                        if (nPeers <= x * y * z * MAX_N)
                             return new ElasticLayout(x, y, z);
-                    }
-                }
-            }
 
             return new ElasticLayout(MAX_N);
         }
 
-        public static ElasticLayout ComputeLayoutEx(int nPeers)
+        public static ElasticLayout DefineLayoutFor2(int nPeers)
         {
             // MAX_N 까지는 분할하지 않고 직접 전송한다.
             if (nPeers <= MAX_N)

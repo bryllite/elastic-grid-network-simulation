@@ -116,16 +116,26 @@ namespace NodeServerApp
 
         private void SendTo( ElasticAddress target, byte[] data )
         {
-            Task.Factory.StartNew(() =>
-            {
-                TCPClient.SendTo(target.Host, target.Port, data);
-            });
+            TCPClient.SendTo(target.Host, target.Port, data);
+        }
+
+        private async Task<bool> SendToAsync( ElasticAddress target, byte[] data )
+        {
+            return await TCPClient.SendToAsync(target.Host, target.Port, data);
         }
 
         private void SendAll( byte[] data )
         {
             foreach (var target in ToElasticAddressArray())
                 SendTo(target, data);
+        }
+
+        private void SendAllAsync( byte[] data )
+        {
+            Task.Factory.StartNew(() =>
+            {
+                SendAll(data);
+            });
         }
 
         private void SendAll( Payload data )
@@ -146,12 +156,10 @@ namespace NodeServerApp
 
         private void OnHostAccept(TCPSession session)
         {
-            //            Log.i(TAG, $"OnHostAccept(): session={session.ID}");
         }
 
         private void OnHostClose(TCPSession session, int reason)
         {
-            //            Log.i(TAG, $"OnHostClose(): session={session.ID}, reason={reason}");
         }
 
 
@@ -165,25 +173,25 @@ namespace NodeServerApp
                 return;
             }
 
-            // is Elastic Grid Message?
-            if ( receivedMessage.To != null )
-            {
-                OnElasticMessage(receivedMessage);
-                return;
-            }
-
             // sender exists on peer lists?
             ElasticAddress sender = FindElasticAddress(receivedMessage.FromAddress);
             if ( sender != null )
             {
+                // is Elastic Grid Message?
+                if (receivedMessage.To != null)
+                {
+                    OnElasticMessage(receivedMessage);
+                    return;
+                }
+
                 // message for me
                 // process here...
                 Payload data = receivedMessage.Body;
                 string command = data.Get<string>("command");
                 switch( command )
                 {
-                    case "block": OnNodeMessageBlock(sender, data); return;
-                    case "block_ok": OnNodeMessageBlockOk(sender, data); return;
+                    case "ping": OnNodeMessagePing(sender, data); return;
+                    case "pong": OnNodeMessagePong(sender, data); return;
                     default: break;
                 }
 
@@ -227,7 +235,7 @@ namespace NodeServerApp
 
                 switch (command)
                 {
-                    case "consensus": OnTrackerMessageConsensus(client, msg); return;
+                    case "broadcast": OnTrackerMessageBroadcast(client, msg); return;
                     case "update_peers": OnTrackerMessageUpdatePeers(client, msg); return;
                     default: break;
                 }
@@ -240,7 +248,7 @@ namespace NodeServerApp
             }
         }
 
-        private void OnTrackerMessageConsensus(TCPClient client, Payload recvMsg)
+        private void OnTrackerMessageBroadcast(TCPClient client, Payload recvMsg)
         {
             int id = recvMsg.Get<int>("id");
             int size = recvMsg.Get<int>("size");
@@ -256,7 +264,7 @@ namespace NodeServerApp
 
                 // 전송할 메세지
                 Payload data = new Payload();
-                data.Set("command", "block");
+                data.Set("command", "ping");
                 data.Set("id", id);
                 data.Set("hash", hash);
                 data.Set("rndBytes", rndBytes);
@@ -294,8 +302,8 @@ namespace NodeServerApp
         public void ElasticSendAll(Payload data)
         {
             // 좌표계 결정
-            ElasticLayout layout = ElasticLayout.ComputeLayout(mPeers.Count);
-            if (layout.GridCount <= 1)
+            ElasticLayout layout = ElasticLayout.DefineLayoutFor(mPeers.Count);
+            if (layout.Count <= 1)
             {
                 SendAll(data);
                 return;
@@ -312,12 +320,11 @@ namespace NodeServerApp
                     ElasticCoordinates dest = new ElasticCoordinates(layout, new Elastic3D(0, 0, z));
                     message.To = dest;
 
-                    ElasticAddress[] targets = FindElasticAddress(dest);
-                    if (targets.Length > 0)
+                    // pick random target from give coordinates
+                    ElasticAddress target = PickRndAddressFrom(dest);
+                    if ( target != null )
                     {
-                        ElasticAddress target = targets[RndGenerator.Next(targets.Length)];
                         SendTo(target, message.ToBytes());
-
                         Log.d(TAG, $"{mNodeAddress.HexAddress}: Sending message to {dest.ToString()}");
                     }
                 }
@@ -330,12 +337,11 @@ namespace NodeServerApp
                     ElasticCoordinates dest = new ElasticCoordinates(layout, new Elastic3D(0, y, 1));
                     message.To = dest;
 
-                    ElasticAddress[] targets = FindElasticAddress(dest);
-                    if (targets.Length > 0)
+                    // pick random target from give coordinates
+                    ElasticAddress target = PickRndAddressFrom(dest);
+                    if (target != null)
                     {
-                        ElasticAddress target = targets[RndGenerator.Next(targets.Length)];
                         SendTo(target, message.ToBytes());
-
                         Log.d(TAG, $"{mNodeAddress.HexAddress}: Sending message to {dest.ToString()}");
                     }
                 }
@@ -348,12 +354,11 @@ namespace NodeServerApp
                     ElasticCoordinates dest = new ElasticCoordinates(layout, new Elastic3D(x, 1, 1));
                     message.To = dest;
 
-                    ElasticAddress[] targets = FindElasticAddress(dest);
-                    if (targets.Length > 0)
+                    // pick random target from give coordinates
+                    ElasticAddress target = PickRndAddressFrom(dest);
+                    if (target != null)
                     {
-                        ElasticAddress target = targets[RndGenerator.Next(targets.Length)];
                         SendTo(target, message.ToBytes());
-
                         Log.d(TAG, $"{mNodeAddress.HexAddress}: Sending message to {dest.ToString()}");
                     }
                 }
@@ -372,6 +377,9 @@ namespace NodeServerApp
 
             if (!position.Solid)
             {
+                // Z-Coordinates must be filled.
+                Debug.Assert(position.Z >= 1);
+
                 // Y-축 전송
                 if (position.Y <= 0)
                 {
@@ -380,12 +388,10 @@ namespace NodeServerApp
                         ElasticCoordinates dest = new ElasticCoordinates(layout, new Elastic3D(0, y, position.Z));
                         receivedMessage.To = dest;
 
-                        ElasticAddress[] targets = FindElasticAddress(dest);
-                        if (targets.Length > 0)
+                        ElasticAddress target = PickRndAddressFrom(dest);
+                        if ( target != null )
                         {
-                            ElasticAddress target = targets[RndGenerator.Next(targets.Length)];
                             SendTo(target, receivedMessage.ToBytes());
-
                             Log.d(TAG, $"{mNodeAddress.HexAddress}: relaying message to {dest.ToString()}");
                         }
                     }
@@ -399,12 +405,10 @@ namespace NodeServerApp
                     ElasticCoordinates dest = new ElasticCoordinates(layout, new Elastic3D(x, position.Y, position.Z));
                     receivedMessage.To = dest;
 
-                    ElasticAddress[] targets = FindElasticAddress(dest);
-                    if (targets.Length > 0)
+                    ElasticAddress target = PickRndAddressFrom(dest);
+                    if (target != null)
                     {
-                        ElasticAddress target = targets[RndGenerator.Next(targets.Length)];
                         SendTo(target, receivedMessage.ToBytes());
-
                         Log.d(TAG, $"{mNodeAddress.HexAddress}: relaying message to {dest.ToString()}");
                     }
                 }
@@ -443,7 +447,23 @@ namespace NodeServerApp
             return addrs.ToArray();
         }
 
-        private void OnNodeMessageBlock(ElasticAddress sender, Payload msg)
+        // pick a random elastic address from address lists of given coordinates
+        // pick sender address if sender included on address lists
+        private ElasticAddress PickRndAddressFrom( ElasticCoordinates coordinates )
+        {
+            ElasticAddress[] targets = FindElasticAddress(coordinates);
+            if (targets.Length == 0) return null;
+
+            foreach( var target in targets )
+            {
+                if (target.HexAddress == mNodeAddress.HexAddress)
+                    return target;
+            }
+
+            return targets[RndGenerator.Next(targets.Length)];
+        }
+
+        private void OnNodeMessagePing(ElasticAddress sender, Payload msg)
         {
             int id = msg.Get<int>("id");
             byte[] hash = msg.Get<byte[]>("hash");
@@ -452,9 +472,11 @@ namespace NodeServerApp
 
             Log.i(TAG, $"Received Data(id:{id}, length:{rndBytes.Length})");
 
+            Debug.Assert(hash.SequenceEqual(HashUtil.Hash256(rndBytes)));
+
             // 잘 받았다고 응답 보낸다
             Payload ack = new Payload();
-            ack.Set("command", "block_ok");
+            ack.Set("command", "pong");
             ack.Set("id", id);
             ack.Set("hash", hash);
             ack.Set("msgTime", msgTime);
@@ -470,15 +492,13 @@ namespace NodeServerApp
             }
         }
 
-        private void OnNodeMessageBlockOk(ElasticAddress sender, Payload msg)
+        private void OnNodeMessagePong(ElasticAddress sender, Payload msg)
         {
             int id = msg.Get<int>("id");
             byte[] hash = msg.Get<byte[]>("hash");
             DateTime msgTime = msg.Get<DateTime>("msgTime");
             TimeSpan travelTime = DateTime.Now - msgTime;
             double latency = travelTime.TotalMilliseconds;
-
-            //            Log.i(TAG, $"OnHostMessageBlockOK(): hash={hash.ToHexString()}, latency={latency}(ms)");
 
             // 트래커 서비스에 리포트한다.
             Payload report = new Payload();
@@ -488,6 +508,5 @@ namespace NodeServerApp
             report.Set("latency", latency);
             mTrackerClient.Send(report.ToByteArray());
         }
-
     }
 }

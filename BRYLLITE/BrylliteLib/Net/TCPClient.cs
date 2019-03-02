@@ -168,6 +168,14 @@ namespace BrylliteLib.Net
             OnWrite?.Invoke(this, writeBytes);
         }
 
+        public static async Task<bool> SendToAsync( string host, int port, byte[] data )
+        {
+            return await Task.Factory.StartNew(() =>
+            {
+                return SendTo(host, port, data);
+            });
+        }
+
         // Send packet to host
         // connect -> send -> close
         public static bool SendTo(string host, int port, byte[] data)
@@ -182,11 +190,16 @@ namespace BrylliteLib.Net
                 return false;
             }
 
-            TcpClient tcp_client = new TcpClient();
+            TcpClient tcp_client = null ;
             try
             {
+                tcp_client = new TcpClient(host, port);
+
+                // set client socket reuse address
+//                tcp_client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+
                 // connect
-                tcp_client.Connect(host, port);
+//                tcp_client.Connect(host, port);
 
             }
             catch (Exception e)

@@ -110,7 +110,7 @@ namespace TrackerServiceApp
 
                     // 메세지
                     Payload msg = new Payload();
-                    msg.Set("command", "consensus");
+                    msg.Set("command", "broadcast");
                     msg.Set("id", id);
                     msg.Set("size", nBlockSize);
 
@@ -175,7 +175,7 @@ namespace TrackerServiceApp
         {
             int nPeers = _peers.Count;
             int nSession = _tcp_server.SessionCount;
-            ElasticLayout layout = ElasticLayout.ComputeLayout(nPeers);
+            ElasticLayout layout = ElasticLayout.DefineLayoutFor(nPeers);
 
             Log.i(TAG, $"[Information]");
             Log.i(TAG, $"nPeers = {nPeers}");
