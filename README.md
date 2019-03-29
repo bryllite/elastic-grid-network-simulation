@@ -42,17 +42,19 @@ z-coordinates = 1 + ( hz % layout.z )
 ![broadcast_2](https://user-images.githubusercontent.com/38033465/53714875-665d0e80-3e93-11e9-8dda-a0cdd647b942.jpg)
 ![broadcast_3](https://user-images.githubusercontent.com/38033465/53714883-6826d200-3e93-11e9-8ecb-8507a9a81af4.jpg)
 
-A node who received incomplete coordinates message, relay the message to randomly selected node in a slice( me if slice contains me )   
-A node who received complete coordinates message, relay the message to all node in a cell  
+* `Sending to (x, y, z)` means sending message to one node in (x,y,z) randomly selected.  
+If you send message to coordinates (0, 0, 1), Randomly selects one of all the nodes having the Z-Axis Coordinate of 1, and send message to the corresponding node.
+* A node who received incomplete coordinates message, relay the message to randomly selected node in a slice( me if slice contains me )   
+* A node who received complete coordinates message, relay the message to all node in a cell  
 
 ## Coverage
 
-A node can broadcast to N^4 nodes with 4N send call.  
-A node can broadcast to 4,096 nodes with 32 send call ( if N = 8 )  
-A node can broadcast to 65,536 nodes with 64 send call ( if N = 16 )  
-A node can broadcast to 1,048,576 nodes with 128 send call ( if N = 32 )  
+* A node can broadcast to N^4 nodes with 4N send call.  
+* A node can broadcast to 4,096 nodes with 32 send call ( if N = 8 )  
+* A node can broadcast to 65,536 nodes with 64 send call ( if N = 16 )  
+* A node can broadcast to 1,048,576 nodes with 128 send call ( if N = 32 )  
 
-And also can be extended to 4D-Coordiantes system( x, y, z, w )  
+* And also can be extended to 4D-Coordiantes system( x, y, z, w )  
 A node can broadcast to N^5 nodes with 5N send call on 4D-Coordinates system.  
 
 
