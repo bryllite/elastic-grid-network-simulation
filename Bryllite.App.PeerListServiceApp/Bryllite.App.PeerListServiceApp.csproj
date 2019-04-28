@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AssemblyName>PeerListServiceApp</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bryllite.Net.Elastic\Bryllite.Net.Elastic.csproj" />
+    <ProjectReference Include="..\Bryllite.Net.Tcp.Server\Bryllite.Net.Tcp.Server.csproj" />
+    <ProjectReference Include="..\Bryllite.Util.CommandLineParser\Bryllite.Util.CommandLine.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy *.json $(OutDir)" />
+  </Target>
+
+</Project>

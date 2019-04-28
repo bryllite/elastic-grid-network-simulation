@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Bryllite.App.ElasticNodeServiceApp": {
+      "commandName": "Project",
+      "commandLineArgs": "--console"
+    }
+  }
+}

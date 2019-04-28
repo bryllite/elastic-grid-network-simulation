@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Bryllite.Util</RootNamespace>
+    <AssemblyName>Bryllite.Util.Payloads</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bryllite.Core.Hash\Bryllite.Core.Hash.csproj" />
+    <ProjectReference Include="..\Bryllite.Util\Bryllite.Util.csproj" />
+  </ItemGroup>
+
+</Project>

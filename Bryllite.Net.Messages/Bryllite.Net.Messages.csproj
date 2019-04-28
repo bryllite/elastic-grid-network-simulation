@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bryllite.Core.Key\Bryllite.Core.Key.csproj" />
+    <ProjectReference Include="..\Bryllite.Util.Payload\Bryllite.Util.Payloads.csproj" />
+  </ItemGroup>
+
+</Project>
