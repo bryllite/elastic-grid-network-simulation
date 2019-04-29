@@ -34,6 +34,8 @@ namespace Bryllite.Net.Elastic
         // message handler
         public Action<ElasticAddress, Message> OnMessage { get; set; }
 
+        // should verify router?
+        public bool ShouldVerifyRouter = true;
 
         public ElasticNode( IConfiguration configuration, ILoggable logger, IPeerList peers, PrivateKey nodeKey, ElasticAddress localEndPoint )
         {
@@ -91,27 +93,31 @@ namespace Bryllite.Net.Elastic
 
         private void OnTcpServerMessage(ITcpSession session, byte[] data)
         {
-            // valid sign?
             Message message = Message.Parse(data);
-            if (!message.Verify())
-            {
-                Logger.warning($"Message verify() failed");
-                return ;
-            }
-
-            // authorized peer?
-            ElasticAddress peer = Peers.Find(message.Sender);
-            if (ReferenceEquals(peer, null))
-            {
-                Logger.warning($"Message from unknown peer");
-                return ;
-            }
 
             // should route this message?
             if (message.ShouldRoute())
             {
                 OnElasticMessage(message);
                 return;
+            }
+
+            // message sender
+            Address sender = message.Sender;
+
+            // authorized peer?
+            ElasticAddress peer = Peers.Find(sender);
+            if (ReferenceEquals(peer, null))
+            {
+                Logger.warning($"Message from unknown peer");
+                return;
+            }
+
+            // valid sign?
+            if (!message.Verify(sender))
+            {
+                Logger.warning($"Message verify() failed");
+                return ;
             }
 
             // message handler invoke
@@ -209,9 +215,9 @@ namespace Bryllite.Net.Elastic
                     .Append("(+) Routing message(")
                     .Append(ConsoleColor.DarkCyan, message.ID.Ellipsis())
                     .Append(") To:")
-                    .Append(ConsoleColor.DarkGreen, to)
+                    .Append(to.Mul() == 0 ? ConsoleColor.DarkYellow : ConsoleColor.DarkGreen, to)
                     .Append(", Me:")
-                    .WriteLine(ConsoleColor.DarkGreen, LocalEndPoint.Ellipsis());
+                    .WriteLine(ConsoleColor.DarkCyan, LocalEndPoint.Ellipsis());
 
                 SendTo(message, LocalEndPoint);
 
@@ -226,9 +232,9 @@ namespace Bryllite.Net.Elastic
                     .Append("(+) Routing message(")
                     .Append(ConsoleColor.DarkCyan, message.ID.Ellipsis())
                     .Append(") To:")
-                    .Append(ConsoleColor.DarkGreen, to)
+                    .Append(to.Mul() == 0 ? ConsoleColor.DarkYellow : ConsoleColor.DarkGreen, to)
                     .Append(", Peer:")
-                    .WriteLine(ConsoleColor.DarkGreen, peer.Ellipsis());
+                    .WriteLine(ConsoleColor.DarkCyan, peer.Ellipsis());
 
                 if (SendTo(message, peer))
                     break;
@@ -310,17 +316,20 @@ namespace Bryllite.Net.Elastic
             ElasticLayout layout = message.Layout();
             Elastic3D me = layout.DefineCoordinates(NodeKey.Address);
 
-            // verify message
-            if (!message.VerifyRouter())
-            {
-                Logger.warning("router verify() failed");
-                return ;
-            }
+            // message router
+            Address router = message.Router();
 
             // router permitted?
-            if (!Peers.Exists(message.Router()))
+            if (!Peers.Exists(router))
             {
                 Logger.warning("unknown router!");
+                return;
+            }
+
+            // verify message
+            if (ShouldVerifyRouter && !message.VerifyRouter(router))
+            {
+                Logger.warning("router verify() failed");
                 return ;
             }
 
@@ -328,7 +337,7 @@ namespace Bryllite.Net.Elastic
                 .Append("(-) Received ShouldRoute message(")
                 .Append(ConsoleColor.DarkCyan, message.ID.Ellipsis())
                 .Append(") To:")
-                .WriteLine(ConsoleColor.DarkGreen, to);
+                .WriteLine(to.Mul() == 0 ? ConsoleColor.DarkYellow : ConsoleColor.DarkGreen, to);
 
             // broadcast to all cell
             if (to.Mul() > 0 && ttl == 1 )

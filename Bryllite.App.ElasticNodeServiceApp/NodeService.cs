@@ -86,6 +86,19 @@ namespace Bryllite.App.ElasticNodeServiceApp
           
         }
 
+        public void Stop()
+        {
+            // close all forked process
+            Test?.KillAll();
+
+            // stop catalog service
+            PeerListClient.Stop();
+
+            // stop elastic node
+            ElasticNode.Stop();
+        }
+
+
         public void StartConsole()
         {
             commandLineInterpreter = new CommandLineInterpreter()
@@ -96,6 +109,7 @@ namespace Bryllite.App.ElasticNodeServiceApp
             ShowEnviromentValues();
             ShowUsage();
 
+            BConsole.Enabled = true;
             commandLineInterpreter.Start( cts );
         }
 
@@ -296,21 +310,11 @@ namespace Bryllite.App.ElasticNodeServiceApp
 
         private void OnConsoleCommandPeersKill(string[] args)
         {
-            int port = Convert.ToInt32(args[0]);
+            int portStart = Convert.ToInt32(args[0]);
+            int portEnd = args.Length >= 2 ? Convert.ToInt32(args[1]) : portStart;
 
-            Test?.Kill(port);
-        }
-
-        public void Stop()
-        {
-            // close all forked process
-            Test?.KillAll();
-
-            // stop catalog service
-            PeerListClient.Stop();
-
-            // stop elastic node
-            ElasticNode.Stop();
+            for (int i = portStart; i <= portEnd; i++)
+                Test?.Kill(i);
         }
 
         public void Update()

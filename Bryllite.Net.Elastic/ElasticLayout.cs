@@ -73,11 +73,14 @@ namespace Bryllite.Net.Elastic
             return !(left == right);
         }
 
-        public override string ToString()
-        {
-            //return JObject.FromObject(this).ToString();
-            return $"({X},{Y},{Z})";
-        }
+        //public override string ToString()
+        //{
+        //    string x = X == 0 ? "?" : X.ToString();
+        //    string y = Y == 0 ? "?" : Y.ToString();
+        //    string z = Z == 0 ? "?" : Z.ToString();
+
+        //    return $"({x},{y},{z})";
+        //}
 
         public static ElasticLayout DefineLayout(int nPeers)
         {

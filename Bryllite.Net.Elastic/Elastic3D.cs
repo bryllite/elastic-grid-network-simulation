@@ -95,8 +95,11 @@ namespace Bryllite.Net.Elastic
 
         public override string ToString()
         {
-            //return JObject.FromObject(this).ToString();
-            return $"({X},{Y},{Z})";
+            string x = X == 0 ? "?" : X.ToString();
+            string y = Y == 0 ? "?" : Y.ToString();
+            string z = Z == 0 ? "?" : Z.ToString();
+
+            return $"({x},{y},{z})";
         }
 
         public bool Contains(Elastic3D pos)

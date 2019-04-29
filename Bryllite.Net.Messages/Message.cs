@@ -34,7 +34,7 @@ namespace Bryllite.Net.Messages
         {
             get
             {
-                return Signature.ToPublicKey(body.Hash).Address;
+                return Signature.ToPublicKey(Body.Hash).Address;
             }
         }
 
@@ -46,7 +46,7 @@ namespace Bryllite.Net.Messages
 
         public int Length => ToBytes().Length;
 
-        public string ID => body.Hash.ToHex();
+        public string ID => Body.Hash.ToHex();
 
         protected Message()
         {
@@ -254,7 +254,7 @@ namespace Bryllite.Net.Messages
 
                 // fill header with key sign for body
                 message.headers.Set(VERSION, MessageVersion);
-                message.headers.Set(SIGNATURE, key.Sign(message.body.Hash).ToBytes());
+                message.headers.Set(SIGNATURE, key.Sign(message.Body.Hash).ToBytes());
 
                 return message;
             }

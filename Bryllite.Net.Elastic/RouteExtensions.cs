@@ -38,9 +38,14 @@ namespace Bryllite.Net.Elastic
 
         public static bool VerifyRouter(this Message message)
         {
+            return VerifyRouter(message, Router(message));
+        }
+
+        public static bool VerifyRouter(this Message message, Address address)
+        {
             try
             {
-                return Router(message) == RouterSignature(message).ToPublicKey(message.Body.Hash).Address;
+                return address == RouterSignature(message).ToPublicKey(message.Body.Hash).Address;
             }
             catch (Exception)
             {

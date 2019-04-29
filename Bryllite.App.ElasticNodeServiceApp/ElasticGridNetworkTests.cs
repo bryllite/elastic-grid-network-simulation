@@ -113,8 +113,8 @@ namespace Bryllite.App.ElasticNodeServiceApp
                 .Append(DarkGreen, waitTime)
                 .WriteLine("(ms)");
 
-            // 결과 보고서 초기화
-            Reports.Clear();
+            // 보고서 초기화
+            Reports.Start();
 
             // 5초에 한번씩 전체 메세지 전송한다.
             Stopwatch sw = Stopwatch.StartNew();
@@ -188,21 +188,19 @@ namespace Bryllite.App.ElasticNodeServiceApp
             Node.SendTo(message, peer);
         }
 
-        public void OnMessagePing(ElasticAddress sender, Message messagePing)
+        public void OnMessagePing(ElasticAddress sender, Message ping)
         {
-            Message ack = new Message.Builder()
+            Message pong = new Message.Builder()
                 .Action("pong")
-                .Body("msgHash", messagePing.ID )
-                .Body("msgBytes", messagePing.Length)
-                .Body("msgTime", messagePing.TimeStamp)
+                .Body("msgHash", ping.ID )
                 .Build(NodeKey);
 
-            SendTo(ack, sender);
+            SendTo(pong, sender);
         }
 
-        public void OnMessagePong(ElasticAddress sender, Message messagePong)
+        public void OnMessagePong(ElasticAddress sender, Message pong)
         {
-            string messageId = messagePong.Value<string>("msgHash");
+            string messageId = pong.Value<string>("msgHash");
             Reports.AddItem(messageId, sender);
         }
 
@@ -377,9 +375,16 @@ namespace Bryllite.App.ElasticNodeServiceApp
                 }
             }
 
+            private Stopwatch stopwatch;
 
             public TestReports()
             {
+            }
+
+            public void Start()
+            {
+                stopwatch = Stopwatch.StartNew();
+                Clear();
             }
 
             public void Clear()
@@ -448,20 +453,25 @@ namespace Bryllite.App.ElasticNodeServiceApp
                 long MaxAverage = _reports.Count > 0 ? (MaxSum / _reports.Count) : 0;
 
                 new BConsole.MessageBuilder()
-                    .AppendLine( Blue, "TOTAL:")
+                    .AppendLine(Blue, "TOTAL:")
                     .Append("  Received: ")
-                    .Append(ReceivedSum==SentSum?DarkGreen:DarkRed, ReceivedSum)
+                    .Append(ReceivedSum == SentSum ? DarkGreen : DarkRed, ReceivedSum)
                     .Append("/")
                     .Append(DarkGreen, SentSum)
                     .Append(" (")
-                    .Append(ReceiveRate==100m?DarkGreen:DarkRed, ReceiveRate)
+                    .Append(ReceiveRate == 100m ? DarkGreen : DarkRed, ReceiveRate)
                     .Append("%), Low Average: ")
-                    .Append(LowAverage<=500?DarkGreen:LowAverage<=5000?DarkYellow:DarkRed, LowAverage)
+                    .Append(LowAverage <= 500 ? DarkGreen : LowAverage <= 5000 ? DarkYellow : DarkRed, LowAverage)
                     .Append("(ms), Average: ")
-                    .Append(Average<=500?DarkGreen:Average<=5000?DarkYellow:DarkRed, Average)
+                    .Append(Average <= 500 ? DarkGreen : Average <= 5000 ? DarkYellow : DarkRed, Average)
                     .Append("(ms), Max Average: ")
-                    .Append(MaxAverage<=500?DarkGreen:MaxAverage<=5000?DarkYellow:DarkRed, MaxAverage)
+                    .Append(MaxAverage <= 500 ? DarkGreen : MaxAverage <= 5000 ? DarkYellow : DarkRed, MaxAverage)
                     .WriteLine("(ms)");
+
+                new BConsole.MessageBuilder()
+                    .Append("  Elapsed: ")
+                    .Append(DarkGreen, stopwatch.Elapsed.TotalSeconds)
+                    .WriteLine(" seconds");
 
                 BConsole.WriteLine();
             }

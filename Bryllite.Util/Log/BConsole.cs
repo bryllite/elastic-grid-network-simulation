@@ -21,6 +21,9 @@ namespace Bryllite.Util.Log
         public static ConsoleColor ColorTrace = ConsoleColor.DarkGray;
         public static ConsoleColor ColorInfo = ConsoleColor.DarkMagenta;
         public static ConsoleColor ColorVerb = ConsoleColor.DarkBlue;
+
+        public static bool Enabled = false;
+
         public static string[] CallStacks
         {
             get

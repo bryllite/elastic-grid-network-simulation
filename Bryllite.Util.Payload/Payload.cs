@@ -11,7 +11,16 @@ namespace Bryllite.Util.Payloads
     {
         protected JObject payloads;
 
-        public byte[] Hash => HashProvider.Hash256(ToBytes());
+        protected byte[] _Hash;
+
+        public byte[] Hash
+        {
+            get
+            {
+                if (ReferenceEquals(_Hash, null)) _Hash = ComputeHash();
+                return _Hash;
+            }
+        }
 
         public string[] Keys => payloads.ToObject<Dictionary<string, object>>().Keys.ToArray();
 
@@ -52,6 +61,11 @@ namespace Bryllite.Util.Payloads
         public byte[] ToBytes()
         {
             return BsonConverter.ToBytes(payloads);
+        }
+
+        protected byte[] ComputeHash()
+        {
+            return HashProvider.Hash256(ToBytes());
         }
 
         public bool ContainsKey(string key)
@@ -126,21 +140,29 @@ namespace Bryllite.Util.Payloads
         public void Set(string name, JValue value)
         {
             payloads[name] = value;
+
+            if (!ReferenceEquals(_Hash, null)) _Hash = ComputeHash();
         }
 
         public void Set(string name, JToken value)
         {
             payloads[name] = value;
+
+            if (!ReferenceEquals(_Hash, null)) _Hash = ComputeHash();
         }
 
         public void Set(string name, JArray value)
         {
             payloads[name] = value;
+
+            if (!ReferenceEquals(_Hash, null)) _Hash = ComputeHash();
         }
 
         public void Set(string name, JObject value)
         {
             payloads[name] = value;
+
+            if (!ReferenceEquals(_Hash, null)) _Hash = ComputeHash();
         }
 
         public void Set(string name, object value)

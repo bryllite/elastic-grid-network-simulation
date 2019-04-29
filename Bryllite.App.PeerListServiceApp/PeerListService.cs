@@ -113,6 +113,7 @@ namespace Bryllite.App.PeerListServiceApp
             ShowUsage();
 
             // start command line interpreter 
+            BConsole.Enabled = true;
             commandLineInterpreter?.Start(cts);
 
         }
