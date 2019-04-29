@@ -58,10 +58,10 @@ If you send message to coordinates (0, 0, 1), Randomly selects one of all the no
 A node can broadcast to N^5 nodes with 5N send call on 4D-Coordinates system.  
 
 # Demo
-* Prebuilt binary for windows10-x64 present in Bin Path
+* Prebuilt binary for windows10-x64 present in `Demo/win-x64/` Folder
 * PeerListServiceApp.exe : Peer List sync service ( means Peer Discovery service )
 * ElasticNodeServiceApp.exe: P2P Node Service ( will be forked as nPeers )
-* run `demo.bat` in Bin Path
+* run `demo.bat` in `Demo/win-x64/`
 * type `test.start()` in ElasticNodeServiceApp.exe console
 * default environment variables : `n=8`, `nPeers=32`, `msgKBytes=128`, `nTimes=10`
 * you can change environment variables with `set(n,16)`, `set(nPeers,128)`, ... in console
