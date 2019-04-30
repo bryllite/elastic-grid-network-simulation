@@ -68,3 +68,12 @@ A node can broadcast to N^5 nodes with 5N send call on 4D-Coordinates system.
 
 ![Demo](https://user-images.githubusercontent.com/39185929/56866588-ddd39800-6a15-11e9-86ff-32866e2f5965.png)
 
+# Test Result
+
+![TEST RESULT](http://drive.google.com/uc?export=view&id=1MhvwBksWWMW7Cwlf2QUpyl9I1r3EnEWw)
+
+* TEST Environment
+> Windows 10 x64, .NET Core 2.2
+> Intel Core i7-8700K 3.70GHz, 6 core, 12 logical processor
+> 64GB DDR4
+
