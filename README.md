@@ -1,6 +1,12 @@
-# Elastic Grid Network Simulation
-Elastic Grid Network Simulation code  
-Elastic Grid Network system is used on Bryllite-Platform when there are a large number of node lists  
+# Elastic Grid Network?
+*Elastic Grid Network* is a P2P grid networking solution for the *Bryllite-Platform*.  
+
+On the *Bryllite-Platform*, all nodes with mining privileges must agree to reach a consensus in order to negotiate blocks. Because all mining nodes participate in the agreement, the blocks connected to the chain become irreversible, which will solve the *double-spending problem* and allow immediate transaction settlement without waiting for the *confirm time*.  
+
+However, the participation of all mining nodes in an agreement means that as the number of nodes participating in the network grows, the burden of network transmission increases and there is a danger that the agreement can not be reached within the time limit. For Example, assume that there are about 10,000 mining nodes participating in the Bryllite network, and that the size of the block to be verified in the BCP agreement step is 1MB. In this case, the data that the node requesting the block verification needs to transfer is about 10 GB (1 MB * 10,000), and it is difficult to reach a consensus by transmitting and verifying the block to all the nodes within the BCP time limit.  
+
+To solve these problems, *Elastic Grid Network Solution* was designed to be suitable for *Bryllite-Platform*. This solution is an efficient grid network technology in which the layout of grid is flexibly applied according to the size of mining nodes participating in the network.
+
 
 # Notice
 This is not real code of Bryllite-Platform.  
