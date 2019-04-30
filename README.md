@@ -61,7 +61,7 @@ A node can broadcast to N^5 nodes with 5N send call on 4D-Coordinates system.
 * Prebuilt binary for windows10-x64 present in `Demo/win-x64/` Folder
 * PeerListServiceApp.exe : Peer List sync service ( means Peer Discovery service )
 * ElasticNodeServiceApp.exe: P2P Node Service ( will be forked as nPeers )
-* run `demo.bat` in `Demo/win-x64/`
+* run `demo.bat` in `Demo/win-x64/` ( [.NET Core 2.2](https://dotnet.microsoft.com/download/dotnet-core/2.2) Installed & `C:\Program Files\dotnet\` in PATH )
 * type `test.start()` in ElasticNodeServiceApp.exe console
 * default environment variables : `n=8`, `nPeers=32`, `msgKBytes=128`, `nTimes=10`
 * you can change environment variables with `set(n,16)`, `set(nPeers,128)`, ... in console
