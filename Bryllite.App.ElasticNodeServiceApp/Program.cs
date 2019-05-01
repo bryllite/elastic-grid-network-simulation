@@ -46,10 +46,12 @@ namespace Bryllite.App.ElasticNodeServiceApp
                 .AddJsonFile(APPSETTINGS, optional: true, reloadOnChange: true)
                 .Build();
 
+            int port = commandLineParser.Value("port", Configuration.GetValue<int>("NodeService:Port"));
+
             // logger
             Logger = new BLog.Builder()
                 .WithConsole(true)
-//                .WithLogger(new RotateFileLogger($"logs/{commandLineParser.Value("host", "localhost")}-{commandLineParser.Value("port", 0)}.log"))
+//                .WithLogger(new RotateFileLogger($"logs/ElasticNodeServiceApp-{port}.log"))
                 .Global(true)
                 .WithFilter(LogFilter.All)
                 .Build();
@@ -62,7 +64,7 @@ namespace Bryllite.App.ElasticNodeServiceApp
             using (var cts = new CancellationTokenSource())
             {
                 NodeService = new NodeService(Configuration.GetSection("NodeService"), Logger, peers );
-                NodeService.Start(commandLineParser.Value("port", 0), 16, cts);
+                NodeService.Start(port, 16, cts);
 
                 Console.CancelKeyPress += (sender, e) =>
                 {

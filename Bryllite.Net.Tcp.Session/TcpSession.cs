@@ -15,7 +15,7 @@ namespace Bryllite.Net.Tcp
 
         public static readonly int HEADER_SIZE = sizeof(int);
         public static readonly int MAX_PACKET_SIZE = 16 * 1024 * 1024;
-        private static readonly int DEFAULT_READ_BUFFER_SIZE = 64 * 1024;
+        public static readonly int DEFAULT_READ_BUFFER_SIZE = 64 * 1024;
 
         // Event Handler
         public Action<ITcpSession> OnStart;

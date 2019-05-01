@@ -62,8 +62,8 @@ namespace Bryllite.Net.Messages
 
         protected Message(Payload header, Payload body)
         {
-            this.headers = header;
-            this.body = body;
+            this.headers = Payload.FromObject(header);
+            this.body = Payload.FromObject(body);
         }
 
         public bool Verify(Address address)
@@ -118,6 +118,12 @@ namespace Bryllite.Net.Messages
         //    Payload payload = Payload.Parse(json);
         //    return new Message(payload.Value<Payload>(HEADER), payload.Value<Payload>(BODY));
         //}
+
+        public Message Clone()
+        {
+            return new Message(this);
+        }
+
 
         public T Value<T>(string name)
         {

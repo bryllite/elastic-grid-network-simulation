@@ -17,7 +17,7 @@ namespace Bryllite.Net.Elastic
 
         bool SendTo(Message message, ElasticAddress peer);
 
-        int SendTo(Message message, ElasticAddress[] peers);
+        void SendTo(Message message, ElasticAddress[] peers);
 
         void SendAll(Message message);
 

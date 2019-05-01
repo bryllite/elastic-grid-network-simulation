@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -95,6 +96,8 @@ namespace Bryllite.Net.Elastic
         {
             Message message = Message.Parse(data);
 
+//            Logger.trace($"OnTcpServerMessage(): message={message}");
+
             // should route this message?
             if (message.ShouldRoute())
             {
@@ -109,14 +112,14 @@ namespace Bryllite.Net.Elastic
             ElasticAddress peer = Peers.Find(sender);
             if (ReferenceEquals(peer, null))
             {
-                Logger.warning($"Message from unknown peer");
+                Logger.warning($"Unauthorized peer!");
                 return;
             }
 
             // valid sign?
             if (!message.Verify(sender))
             {
-                Logger.warning($"Message verify() failed");
+                Logger.warning($"Peer signature not verified!");
                 return ;
             }
 
@@ -143,6 +146,7 @@ namespace Bryllite.Net.Elastic
                 return false;
             }
 
+            // connect to host
             TcpClient client = null;
             try
             {
@@ -154,20 +158,12 @@ namespace Bryllite.Net.Elastic
                 return false;
             }
 
-            // 전송할 데이터
-            List<byte> bytes = new List<byte>();
-            bytes.AddRange(BitConverter.GetBytes(data.Length));
-            bytes.AddRange(data);
-            byte[] bytesToSend = bytes.ToArray();
-
-            bool ret = false;
+            // write to host
             try
             {
-                // write data to socket
-                NetworkStream ns = client.GetStream();
-                ns.Write(bytesToSend, 0, bytesToSend.Length);
-
-                ret = true;
+                byte[] bytesToSend = BitConverter.GetBytes(data.Length).Merge(data);
+                client.GetStream().Write(bytesToSend, 0, bytesToSend.Length);
+                return true;
             }
             catch (Exception e)
             {
@@ -175,11 +171,88 @@ namespace Bryllite.Net.Elastic
             }
             finally
             {
-                // 소켓 종료
                 client.Close();
             }
 
-            return ret;
+            return false;
+        }
+
+        // Send packet to host and receive data
+        // connect -> send -> read -> close
+        public static byte[] SendToAndReceive(byte[] data, string host, int port, ILoggable logger)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(host) && data.Length > 0);
+
+            // 패킷 최대 크기
+            Debug.Assert(data.Length < TcpSession.MAX_PACKET_SIZE - TcpSession.HEADER_SIZE);
+            if (data.Length > TcpSession.MAX_PACKET_SIZE - TcpSession.HEADER_SIZE)
+            {
+                logger.error($"exceeds MAX_PACKET_SIZE({TcpSession.MAX_PACKET_SIZE})");
+                return null;
+            }
+
+            // connect to host
+            TcpClient client = null;
+            try
+            {
+                client = new TcpClient(host, port);
+            }
+            catch (Exception e)
+            {
+                logger.warning($"can't connect to Peer! remote={host}:{port}, e={e.Message}");
+                return null;
+            }
+
+            // write to host
+            try
+            {
+                byte[] bytesToSend = BitConverter.GetBytes(data.Length).Merge(data);
+                client.GetStream().Write(bytesToSend, 0, bytesToSend.Length);
+            }
+            catch (Exception e)
+            {
+                logger.error($"can't write to peer! remote={host}:{port}, data.Length={data.Length}, e={e.Message}");
+                client.Close();
+                return null;
+            }
+
+            // read ack
+            try
+            {
+                List<byte> bytesAck = new List<byte>();
+                byte[] bytesToRead = new byte[TcpSession.HEADER_SIZE];
+                byte[] buffer = new byte[8 * 1024];
+
+                NetworkStream ns = client.GetStream();
+
+                // read header
+                int reads = ns.Read(bytesToRead, 0, TcpSession.HEADER_SIZE);
+                Debug.Assert(reads == TcpSession.HEADER_SIZE);
+                int header = BitConverter.ToInt32(bytesToRead, 0);
+                Debug.Assert(header > 0 && header < TcpSession.MAX_PACKET_SIZE);
+
+                // read data 
+                while (bytesAck.Count < header)
+                {
+                    reads = ns.Read(buffer, 0, buffer.Length);
+                    if (reads <= 0)
+                        break;
+
+                    bytesAck.AddRange(reads==buffer.Length?buffer:buffer.Take(reads).ToArray());
+                }
+
+                return bytesAck.ToArray();
+            }
+            catch (Exception e)
+            {
+                logger.error($"can't read from peer! remote={host}:{port}, e={e.Message}");
+            }
+            finally
+            {
+                client.Close();
+            }
+
+            return null;
         }
 
         public bool SendTo(byte[] data, ElasticAddress peer)
@@ -187,20 +260,40 @@ namespace Bryllite.Net.Elastic
             return SendTo(data, peer.Host, peer.Port);
         }
 
+        public void SendToAsync(byte[] data, ElasticAddress peer)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                SendTo(data, peer);
+            });
+        }
+
         public bool SendTo(Message message, ElasticAddress peer)
         {
             return SendTo(message.ToBytes(), peer);
         }
 
-        public int SendTo(Message message, ElasticAddress[] peers)
+        public void SendTo(Message message, ElasticAddress[] peers)
         {
             byte[] data = message.ToBytes();
-
-            int sent = 0;
             foreach (var peer in peers)
-                if (SendTo(data, peer)) sent++;
+                SendTo(data, peer);
+        }
 
-            return sent;
+        public void SendToAsync(Message message, ElasticAddress[] peers)
+        {
+            byte[] data = message.ToBytes();
+            foreach (var peer in peers)
+                SendToAsync(data, peer);
+        }
+
+
+        private void RouteToAsync(Message message, Elastic3D to)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                RouteTo(message.Clone(), new Elastic3D(to));
+            });
         }
 
         private void RouteTo(Message message, Elastic3D to)
@@ -217,7 +310,9 @@ namespace Bryllite.Net.Elastic
                     .Append(") To:")
                     .Append(to.Mul() == 0 ? ConsoleColor.DarkYellow : ConsoleColor.DarkGreen, to)
                     .Append(", Me:")
-                    .WriteLine(ConsoleColor.DarkCyan, LocalEndPoint.Ellipsis());
+                    .Append(ConsoleColor.DarkCyan, LocalEndPoint.Ellipsis())
+                    //.WriteLine( $", message={message}");
+                    .WriteLine();
 
                 SendTo(message, LocalEndPoint);
 
@@ -234,7 +329,9 @@ namespace Bryllite.Net.Elastic
                     .Append(") To:")
                     .Append(to.Mul() == 0 ? ConsoleColor.DarkYellow : ConsoleColor.DarkGreen, to)
                     .Append(", Peer:")
-                    .WriteLine(ConsoleColor.DarkCyan, peer.Ellipsis());
+                    .Append(ConsoleColor.DarkCyan, peer.Ellipsis())
+                    //.WriteLine($", message={message}");
+                    .WriteLine();
 
                 if (SendTo(message, peer))
                     break;
@@ -260,7 +357,9 @@ namespace Bryllite.Net.Elastic
                     .Append("), To=")
                     .Append(ConsoleColor.DarkGreen, layout)
                     .Append(", nPeers=")
-                    .WriteLine(ConsoleColor.DarkGreen, peers.Length);
+                    .Append(ConsoleColor.DarkGreen, peers.Length)
+                    //.WriteLine($", message={message}");
+                    .WriteLine();
 
                 SendTo(message, peers);
                 return;
@@ -322,14 +421,14 @@ namespace Bryllite.Net.Elastic
             // router permitted?
             if (!Peers.Exists(router))
             {
-                Logger.warning("unknown router!");
+                Logger.warning("Unauthorized router!");
                 return;
             }
 
             // verify message
             if (ShouldVerifyRouter && !message.VerifyRouter(router))
             {
-                Logger.warning("router verify() failed");
+                Logger.warning("Router signature not verified!");
                 return ;
             }
 
@@ -337,7 +436,9 @@ namespace Bryllite.Net.Elastic
                 .Append("(-) Received ShouldRoute message(")
                 .Append(ConsoleColor.DarkCyan, message.ID.Ellipsis())
                 .Append(") To:")
-                .WriteLine(to.Mul() == 0 ? ConsoleColor.DarkYellow : ConsoleColor.DarkGreen, to);
+                .Append(to.Mul() == 0 ? ConsoleColor.DarkYellow : ConsoleColor.DarkGreen, to)
+                //.WriteLine($", message={message}");
+                .WriteLine();
 
             // broadcast to all cell
             if (to.Mul() > 0 && ttl == 1 )
@@ -346,11 +447,13 @@ namespace Bryllite.Net.Elastic
 
                 new BConsole.MessageBuilder()
                     .Append("(!) Broadcasting message(")
-                    .Append(ConsoleColor.DarkCyan, message.ID.Ellipsis() )
+                    .Append(ConsoleColor.DarkCyan, message.ID.Ellipsis())
                     .Append("), To=")
                     .Append(ConsoleColor.DarkGreen, to)
                     .Append(", nPeers=")
-                    .WriteLine(ConsoleColor.DarkGreen, peers.Length);
+                    .Append(ConsoleColor.DarkGreen, peers.Length)
+                    //.WriteLine($", message={message}");
+                    .WriteLine();
 
                 // 해당 좌표의 모든 노드에 전송한다.
                 message.RouteTo(0, to, layout, NodeKey);

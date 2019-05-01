@@ -72,14 +72,15 @@ A node can broadcast to N^5 nodes with 5N send call on 4D-Coordinates system.
 * default environment variables : `n=8`, `nPeers=32`, `msgKBytes=128`, `nTimes=10`
 * you can change environment variables with `set(n,16)`, `set(nPeers,128)`, ... in console
 
-![Demo](https://user-images.githubusercontent.com/39185929/56866588-ddd39800-6a15-11e9-86ff-32866e2f5965.png)
+![elasticnodeserviceapp_demo_screenshot](https://user-images.githubusercontent.com/39185929/57013410-60db3500-6c46-11e9-9ccb-986419a5c1b1.png)
 
-# Test Result
+# Test Reports
 
-![TEST RESULT](http://drive.google.com/uc?export=view&id=1MhvwBksWWMW7Cwlf2QUpyl9I1r3EnEWw)
+![TEST_RESULT](https://user-images.githubusercontent.com/39185929/57013490-b7e10a00-6c46-11e9-9092-40b5842125c4.png)
 
-* TEST Environment
-> Windows 10 x64, .NET Core 2.2
-> Intel Core i7-8700K 3.70GHz, 6 core, 12 logical processor
-> 64GB DDR4
+**TEST Environments**
+
+* Windows 10 x64, .NET Core 2.2
+* Intel Core i7-8700K 3.70GHz, 6 core, 12 logical processor
+* 64GB DDR4
 
