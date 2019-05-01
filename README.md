@@ -3,38 +3,36 @@
 
 On the *Bryllite-Platform*, all nodes with mining authority must communicate at the same time to reach an agreement for block’s agreement. Because all mining nodes participate in the agreement, the blocks connected to the chain become irreversible, which will solve the *double-spending problem* and allow immediate transaction settlement without waiting for the *confirm time*.  
 
-However, the participation of all mining nodes in an agreement means that as the number of nodes participating in the network grows, the burden of network transmission increases and there is a danger that the agreement can not be reached within the time limit. For Example, assume that there are about 10,000 mining nodes participating in the Bryllite network, and that the size of the block to be verified in the BCP agreement step is 1MB. In this case, the data that the node requesting the block verification needs to transfer is about 10 GB (1 MB * 10,000), and it is difficult to reach a consensus by transmitting and verifying the block to all the nodes within the BCP time limit.  
+However, the participation of all mining nodes in an agreement means that as the number of nodes participating in the network grows, the burden of network transmission increases and there is a danger that the agreement can not be reached within the time limit. For Example, assume that there are about 10,000 mining nodes participating in the Bryllite network, and that the size of the block to be verified in the BCP agreement step is 1MB. In this case, the data that the node requesting the block verification needs to transfer is about `10 GB (1 MB * 10,000)`, and it is difficult to reach a consensus by transmitting and verifying the block to all the nodes within the BCP time limit.  
 
 To solve these problems, *Elastic Grid Network Solution* was designed to be suitable for *Bryllite-Platform*. This solution is an efficient grid network technology in which the layout of grid is flexibly applied according to the size of mining nodes participating in the network.
 
 # Notice
-This project and code is conceptual code that shows how the Elastic Grid Network Protocol works and is not actual code of the Bryllite-Platform
+This project and code is conceptual code that shows how the *Elastic Grid Network Protocol* works and is not actual code of the *Bryllite-Platform*
 
 # Environment
 Visual Studio 2017  
-.NET Core 2.2
+[.NET Core 2.2](https://dotnet.microsoft.com/download/dotnet-core/2.2)
 
 # Basic Principle of Elastic Grid Network Operation
 Mining nodes participating in the network know the addresses of all mining nodes participating in the network through the *Node Discovery Service* ( here `PeerListServiceApp` )
 
 If one node(sender) wants to send a message to the entire network,
 
-* The sender determines the `layout` of the grid based on the size of the mining node participating in the network.
-The layout expressed in a 3D-Coordinates system of (x, y, z). (Eg layout = {3, 3, 3})
+* The sender determines the `layout` of the grid based on the size of the mining node participating in the network. The layout expressed in a 3D-Coordinates system of (x, y, z). (Eg layout = {3, 3, 3})
 
-* The coordinates of each node are deterministic by the layout.
+* The coordinates of each node are deterministic by the layout.  
 Reference: [Layout Decision based on nPeers](#layout-decision-based-on-npeers)
 
 * The sender randomly selects one of the nodes belonging to the grid and transmits a message to the node, The recipient receiving this message relays the message to all nodes in the grid.
-If the sender is included in the grid while selecting one of the nodes belonging to the grid, always select the sender.
-If the message transfer to the selected node fails, select the next node and send it again.
+If the sender is included in the grid while selecting one of the nodes belonging to the grid, always select the sender. If the message transfer to the selected node fails, select the next node and send it again.
 
 * Depending on the layout, the relay is done in the order of z-axis, y-axis, x-axis.
 
 # Layout Decision based on nPeers
 The layout is determined by the sender when sending message, and is determined by the number(`nPeers`) of nodes participating in the entire network and the number(`N`) of nodes to be included in a grid.
 
-> N: Number of nodes to include in one grid
+> N: Number of nodes to include in one grid  
 > nPeers: The total number of nodes participating in the network
 
 The figure below shows how to determine the layout according to the number of total nodes participating in the network(`nPeers`) and the number of nodes to be included in a grid(`N`)
