@@ -28,7 +28,7 @@ Reference: [Computing the Coordinates of a node](#computing-the-coordinates-of-a
 * The sender randomly selects one of the nodes belonging to the grid and transmits a message to the node, The recipient receiving this message relays the message to all nodes in the grid.
 If the sender is included in the grid while selecting one of the nodes belonging to the grid, always select the sender. If the message transfer to the selected node fails, select the next node and send it again.
 
-* Depending on the layout, the relay is done in the order of z-axis, y-axis, x-axis.
+* Depending on the layout, the relay is done in the order of z-axis, y-axis, x-axis.  
 Reference: [How message broadcasting works](#how-message-broadcasting-works)
 
 # Layout Decision based on nPeers
