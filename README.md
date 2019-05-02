@@ -19,15 +19,17 @@ Mining nodes participating in the network know the addresses of all mining nodes
 
 If one node(sender) wants to send a message to the entire network,
 
-* The sender determines the `layout` of the grid based on the size of the mining node participating in the network. The layout expressed in a 3D-Coordinates system of (x, y, z). (Eg layout = {3, 3, 3})
+* The sender determines the `layout` of the grid based on the size of the mining node participating in the network. The layout expressed in a 3D-Coordinates system of (x, y, z). (Eg layout = {3, 3, 3})  
+Reference: [Layout Decision based on nPeers](#layout-decision-based-on-npeers)
 
 * The coordinates of each node are deterministic by the layout.  
-Reference: [Layout Decision based on nPeers](#layout-decision-based-on-npeers)
+Reference: [Computing the Coordinates of a node](#computing-the-coordinates-of-a-node)
 
 * The sender randomly selects one of the nodes belonging to the grid and transmits a message to the node, The recipient receiving this message relays the message to all nodes in the grid.
 If the sender is included in the grid while selecting one of the nodes belonging to the grid, always select the sender. If the message transfer to the selected node fails, select the next node and send it again.
 
 * Depending on the layout, the relay is done in the order of z-axis, y-axis, x-axis.
+Reference: [How message broadcasting works](#how-message-broadcasting-works)
 
 # Layout Decision based on nPeers
 The layout is determined by the sender when sending message, and is determined by the number(`nPeers`) of nodes participating in the entire network and the number(`N`) of nodes to be included in a grid.
@@ -55,7 +57,7 @@ CoordinatesOf(Node).Z = 1 + ( hz % layout.Z )
 
 These coordinates are deterministic according to the address of the nodes and layout, and they are uniformly distributed in each grid
 
-# How message broadcating works
+# How message broadcasting works
 For example, if you have `81` participating nodes and the layout is `{3, 3, 3}`, you can describe message broadcasting as follows: One box in the figure below contains about `3` nodes.
 
 ## Z-Axis message transmission
