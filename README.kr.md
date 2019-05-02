@@ -1,5 +1,5 @@
 # Elastic Grid Network?
-Elastic Grid Network는 브릴라이트 플랫폼의 P2P 그리드 네트워킹 솔루션입니다.  
+*Elastic Grid Network*는 *브릴라이트 플랫폼*의 *P2P 그리드 네트워킹 솔루션*입니다.  
 
 *브릴라이트 플랫폼*에서는 블록의 합의를 위해 마이닝 권한을 가진 모든 노드가 동시에 통신을 하여 합의에 이르러야 합니다. 모든 마이닝 노드가 합의에 참여하기 때문에, 체인에 연결된 블록은 되돌릴 수 없는 비가역적인 상태가 되며, 이를 통해 *더블 스펜딩 문제*를 해결할 수 있고, *컨펌 타임*을 기다릴 필요 없이 즉각적으로 거래의 확정이 가능해집니다.  
 
@@ -104,14 +104,15 @@ CoordinateOf(Node).Z = 1 + ( hz % layout.Z )
 이 경우 전송자는 `N * 5`번의 Send() 호출을 통해 `N ^ 5`개의 노드에게 메세지를 전송할 수 있을 것입니다.
 
 # 데모
-* Windows x64 기반의 데모 실행파일이 `Demo/win-x64` 폴더에 제공됩니다.
-* `PeerListServiceApp.exe` : 노드 디스커버리 서비스와 같은 Peer 목록 동기화 서비스 입니다.
-* `ElasticNodeServiceApp.exe` : Elastic Grid Network 메세지 전송을 수행하는 P2P 노드 서비스 입니다. ( nPeers 만큼 프로세스가 포크됩니다. )
-* `Demo/win-x64` 경로에서 `demo.bat` 를 실행하세요. 
-( [.NET Core 2.2](https://dotnet.microsoft.com/download/dotnet-core/2.2) 가 설치되어 있어야 하고, `dotnet.exe`가 존재하는 폴더(`C:\Program Files\dotnet\`)가 `PATH`에 등록되어 있어야 합니다. )
-* `PeerListServiceApp.exe` 콘솔창과 `ElasticNodeServiceApp.exe` 콘솔창이 실행되면, `ElasticNodeServiceApp.exe` 콘솔창에 `test.start()` 를 입력하여 테스트를 실행할 수 있습니다.
-기본 환경 설정 값으로 `n=8`, `nPeers=32`, `msgKBytes=128`, `nTimes=10` 으로 설정되어 있습니다.
-테스트를 실행하기 전에 `set(n,16)`, `set(nPeers,64)`, `set(msgKBytes,256)`, `set(nTimes,20)` 과 같이 콘솔 창에 입력하여 환경 설정 값을 변경할 수 있습니다.
+* Windows x64 기반의 데모 실행파일이 `Demo/win-x64` 폴더에 제공됩니다.  
+* `PeerListServiceApp.exe` : 노드 디스커버리 서비스와 같은 Peer 목록 동기화 서비스 입니다.  
+* `ElasticNodeServiceApp.exe` : Elastic Grid Network 메세지 전송을 수행하는 P2P 노드 서비스 입니다. ( nPeers 만큼 프로세스가 포크됩니다. )  
+* `Demo/win-x64` 경로에서 `demo.bat` 를 실행하세요.  
+( [.NET Core 2.2](https://dotnet.microsoft.com/download/dotnet-core/2.2) 가 설치되어 있어야 하고, `dotnet.exe`가 존재하는 폴더(`C:\Program Files\dotnet\`)가 `PATH`에 등록되어 있어야 합니다. )  
+* `PeerListServiceApp.exe` 콘솔창과 `ElasticNodeServiceApp.exe` 콘솔창이 실행되면, `ElasticNodeServiceApp.exe` 콘솔창에 `test.start()` 를 입력하여 테스트를 실행할 수 있습니다.  
+기본 환경 설정 값으로 `n=8`, `nPeers=32`, `msgKBytes=128`, `nTimes=10` 으로 설정되어 있습니다.  
+테스트를 실행하기 전에 `set(n,16)`, `set(nPeers,64)`, `set(msgKBytes,256)`, `set(nTimes,20)` 과 같이 콘솔 창에 입력하여 환경 설정 값을 변경할 수 있습니다.  
+
 
 ![elasticnodeserviceapp_demo_screenshot](https://user-images.githubusercontent.com/39185929/57013410-60db3500-6c46-11e9-9ccb-986419a5c1b1.png)
 
